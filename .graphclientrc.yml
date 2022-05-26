@@ -1,0 +1,11 @@
+# .graphclientrc.yml
+sources:
+  - name: lilnouns
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/lilnounsdao/lil-nouns-subgraph
+
+  # - name: ENS
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/ensdomains/ens
