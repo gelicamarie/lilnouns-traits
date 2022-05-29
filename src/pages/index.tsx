@@ -7,6 +7,7 @@ import { useState } from 'react'
 import React from 'react'
 
 import { palette, getNounData, buildSVG } from '../utils'
+import Link from 'next/link'
 
 const globalStyles = globalCss({
   '*': {
@@ -114,6 +115,11 @@ const Home: NextPage = () => {
                 return <Skeleton key={i} />
               })}
         </Container>
+        <Link href={`https://lilnouns.wtf/lilnoun/${tokenId}`}>
+          <a target="_blank" rel="noreferrer">
+            https://lilnouns.wtf/lilnoun/{tokenId}
+          </a>
+        </Link>
       </Main>
     </div>
   )
@@ -130,6 +136,11 @@ const Main = styled('main', {
   maxWidth: 'fit-content',
   alignItems: 'center',
   fontSize: '1.1rem',
+
+  a: {
+    color: 'white',
+    opacity: 0.5,
+  },
 })
 
 const TokenInput = styled('input', {
@@ -149,6 +160,7 @@ const Container = styled('div', {
   flexDirection: 'row',
   justifyContent: 'center',
   flexWrap: 'wrap',
+  marginBottom: 10,
 
   div: {
     width: 150,
