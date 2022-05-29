@@ -108,12 +108,11 @@ const Home: NextPage = () => {
       </Head>
 
       <Main>
-        <Container>
-          <form onSubmit={handleSubmit}>
-            <TokenInput placeholder="Token ID" onChange={(e) => setInputId(e.target.value)} />
-            <Enter type="submit" value="Enter" />
-          </form>
-        </Container>
+        <Form onSubmit={handleSubmit}>
+          <label htmlFor="tokenId">Token ID:</label>
+          <TokenInput placeholder={tokenId} onChange={(e) => setInputId(e.target.value)} />
+          <Enter type="submit" value="Enter" />
+        </Form>
 
         <Container>
           {!fetching
@@ -150,13 +149,16 @@ const Main = styled('main', {
   justifyContent: 'center',
   flexDirection: 'column',
   height: '100vh',
-  maxWidth: 'fit-content',
+  maxWidth: '750px',
   alignItems: 'center',
   fontSize: '1.1rem',
+  overflow: 'hidden',
 
   a: {
     color: 'white',
     opacity: 0.5,
+    width: '100%',
+    marginLeft: 22,
   },
 })
 
@@ -164,9 +166,8 @@ const TokenInput = styled('input', {
   padding: '6px 8px',
   borderRadius: '4px',
   border: 'none',
-  marginRight: 10,
   fontSize: '1.1rem',
-
+  marginRight: '10px',
   '&:focus': {
     outline: 'none',
   },
@@ -175,14 +176,15 @@ const TokenInput = styled('input', {
 const Container = styled('div', {
   display: 'flex',
   flexDirection: 'row',
-  justifyContent: 'center',
+  justifyContent: 'space-around',
   flexWrap: 'wrap',
   marginBottom: 10,
+  width: '100%',
 
   div: {
+    display: 'flex',
     width: 150,
     height: 150,
-    margin: 10,
     padding: 10,
   },
 })
@@ -194,6 +196,19 @@ const Items = styled('div', {
   justifyContent: 'space-around',
   alignItems: 'center',
   textAlign: 'center',
+  marginBottom: 10,
+})
+
+const Form = styled('form', {
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  marginLeft: 22,
+  marginBottom: 10,
+
+  label: {
+    marginRight: '10px',
+  },
 })
 
 const Enter = styled('input', {
