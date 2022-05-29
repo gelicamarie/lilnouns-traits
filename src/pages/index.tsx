@@ -1,10 +1,12 @@
+import React from 'react'
 import type { NextPage } from 'next'
+import { useQuery } from 'urql'
+import { useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { styled, globalCss, keyframes } from '../../stitches.config'
-import { useQuery } from 'urql'
-import { useState } from 'react'
-import React from 'react'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { palette, getNounData, buildSVG } from '../utils'
 import Link from 'next/link'
@@ -35,7 +37,7 @@ const Home: NextPage = () => {
   const [tokenId, setTokenId] = useState('0')
   const [inputId, setInputId] = useState('0')
 
-  const [{ data, fetching }] = useQuery({
+  const [{ data, fetching, error }] = useQuery({
     query: /* GraphQL */ `
       query MyNoun($id: ID!) {
         seed(id: $id) {
@@ -53,7 +55,7 @@ const Home: NextPage = () => {
   })
 
   const myNoun = React.useMemo(() => {
-    if (data) {
+    if (data?.seed) {
       const noun = getNounData(data.seed)
       const images = buildSVG(noun.parts, palette, noun.background)
       const builder = (value: string) => `data:image/svg+xml;base64,${btoa(value)}`
@@ -86,6 +88,17 @@ const Home: NextPage = () => {
     e.preventDefault()
     setTokenId(inputId)
   }
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error.message)
+    }
+
+    if (!fetching && !data?.seed) {
+      toast.error('Invalid token ID')
+    }
+  }, [data, error, fetching])
+
   return (
     <div>
       <Head>
@@ -104,7 +117,8 @@ const Home: NextPage = () => {
 
         <Container>
           {!fetching
-            ? myNoun?.parts &&
+            ? data?.seed &&
+              myNoun?.parts &&
               Object.values(myNoun?.parts).map((part) => (
                 <Items key={part?.name}>
                   <p>{part?.name}</p>
@@ -115,11 +129,14 @@ const Home: NextPage = () => {
                 return <Skeleton key={i} />
               })}
         </Container>
-        <Link href={`https://lilnouns.wtf/lilnoun/${tokenId}`}>
-          <a target="_blank" rel="noreferrer">
-            https://lilnouns.wtf/lilnoun/{tokenId}
-          </a>
-        </Link>
+        {data?.seed && (
+          <Link href={`https://lilnouns.wtf/lilnoun/${tokenId}`}>
+            <a target="_blank" rel="noreferrer">
+              https://lilnouns.wtf/lilnoun/{tokenId}
+            </a>
+          </Link>
+        )}
+        <ToastContainer />
       </Main>
     </div>
   )
