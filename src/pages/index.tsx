@@ -186,6 +186,7 @@ const Container = styled('div', {
     width: 150,
     height: 150,
     padding: 10,
+    marginBottom: 10,
   },
 })
 
@@ -196,7 +197,6 @@ const Items = styled('div', {
   justifyContent: 'space-around',
   alignItems: 'center',
   textAlign: 'center',
-  marginBottom: 10,
 })
 
 const Form = styled('form', {
