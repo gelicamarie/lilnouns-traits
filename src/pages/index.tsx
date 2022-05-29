@@ -32,8 +32,8 @@ const globalStyles = globalCss({
 const Home: NextPage = () => {
   globalStyles()
 
-  const [tokenId, setTokenId] = useState('592')
-  const [inputId, setInputId] = useState('592')
+  const [tokenId, setTokenId] = useState('0')
+  const [inputId, setInputId] = useState('0')
 
   const [{ data, fetching }] = useQuery({
     query: /* GraphQL */ `
