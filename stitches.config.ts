@@ -12,5 +12,7 @@ export const { styled, css, globalCss, keyframes, getCssText, theme, createTheme
   },
   media: {
     mobile: '(min-width: 480px)',
+    tablet: '(min-width: 768px)',
+    desktop: '(min-width: 1024px)',
   },
 })

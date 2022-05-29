@@ -1,5 +1,5 @@
 {
-  "name": "lilnouns-characteristics",
+  "name": "lilnouns-traits",
   "author": "gel",
   "version": "0.1.0",
   "private": true,
@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "graph:build": "graphclient build",
-    "graph:serve": "graphclient serve-dev"
+    "graph:serve": "graphclient serve-dev",
+    "pretty": "prettier . --write"
   },
   "dependencies": {
     "@graphprotocol/client-urql": "^0.0.6",

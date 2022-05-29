@@ -151,18 +151,25 @@ const Main = styled('main', {
   display: 'flex',
   margin: 'auto',
   justifyContent: 'center',
+  alignItems: 'center',
   flexDirection: 'column',
   height: '100vh',
-  maxWidth: '750px',
-  alignItems: 'center',
+  maxWidth: '90%',
   fontSize: '1.1rem',
   overflow: 'hidden',
+
+  '@tablet': {
+    maxWidth: '750px',
+  },
 
   a: {
     color: 'white',
     opacity: 0.5,
     width: '100%',
-    marginLeft: 22,
+
+    '@tablet': {
+      marginLeft: 22,
+    },
   },
 })
 
@@ -187,10 +194,15 @@ const Container = styled('div', {
 
   div: {
     display: 'flex',
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     padding: 10,
     marginBottom: 10,
+
+    '@desktop': {
+      width: 150,
+      height: 150,
+    },
   },
 })
 
@@ -207,8 +219,11 @@ const Form = styled('form', {
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-  marginLeft: 22,
   marginBottom: 10,
+
+  '@tablet': {
+    marginLeft: 22,
+  },
 
   label: {
     marginRight: '10px',
