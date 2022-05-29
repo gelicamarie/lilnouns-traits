@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -3502,63 +3501,113 @@ export type LilnounsContext = {
 export type MeshContext = LilnounsContext & BaseMeshContext;
 
 
-import { getMesh } from '@graphql-mesh/runtime';
+import { getMesh, ExecuteMeshFn, SubscribeMeshFn } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
+
 import { fileURLToPath } from '@graphql-mesh/utils';
-
-const importedModules: Record<string, any> = {
-
-};
-
 const baseDir = pathModule.join(pathModule.dirname(fileURLToPath(import.meta.url)), '..');
 
 const importFn = (moduleId: string) => {
   const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
-  if (!(relativeModuleId in importedModules)) {
-    throw new Error(`Cannot find module '${relativeModuleId}'.`);
+  switch(relativeModuleId) {
+    case ".graphclient/sources/lilnouns/introspectionSchema":
+      return import("./sources/lilnouns/introspectionSchema");
+    
+    default:
+      return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
   }
-  return Promise.resolve(importedModules[relativeModuleId]);
 };
 
 const rootStore = new MeshStore('.graphclient', new FsStoreStorageAdapter({
   cwd: baseDir,
   importFn,
-  fileType: 'ts',
+  fileType: "ts",
 }), {
   readonly: true,
   validate: false
 });
 
+import type { GetMeshOptions } from '@graphql-mesh/runtime';
+import type { YamlConfig } from '@graphql-mesh/types';
+import { PubSub } from '@graphql-mesh/utils';
+import MeshCache from "@graphql-mesh/cache-localforage";
+import { DefaultLogger } from '@graphql-mesh/utils';
+import GraphqlHandler from "@graphql-mesh/graphql"
+import BareMerger from "@graphql-mesh/merger-bare";
+import { printWithCache } from '@graphql-mesh/utils';
+export const rawServeConfig: YamlConfig.Config['serve'] = undefined as any
+export async function getMeshOptions(): Promise<GetMeshOptions> {
+const pubsub = new PubSub();
+const cache = new (MeshCache as any)({
+      ...({} as any),
+      importFn,
+      store: rootStore.child('cache'),
+      pubsub,
+    } as any)
+const sourcesStore = rootStore.child('sources');
+const logger = new DefaultLogger('🕸️  Mesh');
+const sources = [];
+const transforms = [];
+const additionalEnvelopPlugins = [];
+const lilnounsTransforms = [];
+const additionalTypeDefs = [] as any[];
+const lilnounsHandler = new GraphqlHandler({
+              name: "lilnouns",
+              config: {"endpoint":"https://api.thegraph.com/subgraphs/name/lilnounsdao/lil-nouns-subgraph"},
+              baseDir,
+              cache,
+              pubsub,
+              store: sourcesStore.child("lilnouns"),
+              logger: logger.child("lilnouns"),
+              importFn
+            });
+sources.push({
+          name: 'lilnouns',
+          handler: lilnounsHandler,
+          transforms: lilnounsTransforms
+        })
+const merger = new(BareMerger as any)({
+        cache,
+        pubsub,
+        logger: logger.child('bareMerger'),
+        store: rootStore.child('bareMerger')
+      })
+const additionalResolvers = [] as any[]
 
-                import { findAndParseConfig } from '@graphql-mesh/cli';
-                function getMeshOptions() {
-                  console.warn('WARNING: These artifacts are built for development mode. Please run "graphclient build" to build production artifacts');
-                  return findAndParseConfig({
-                    dir: baseDir,
-                    artifactsDir: ".graphclient",
-                    configName: "graphclient",
-                    additionalPackagePrefixes: ["@graphprotocol/client-"],
-                  });
-                }
-              
-
-export const documentsInSDL = /*#__PURE__*/ [];
-
-export async function getBuiltGraphClient(): Promise<MeshInstance<MeshContext>> {
-  const meshConfig = await getMeshOptions();
-  return getMesh<MeshContext>(meshConfig);
-}
-
-export async function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(globalContext?: TGlobalContext) {
-  const { sdkRequesterFactory } = await getBuiltGraphClient();
-  return getSdk<TOperationContext>(sdkRequesterFactory(globalContext));
-}
-
-export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
-export function getSdk<C>(requester: Requester<C>) {
   return {
-
+    sources,
+    transforms,
+    additionalTypeDefs,
+    additionalResolvers,
+    cache,
+    pubsub,
+    merger,
+    logger,
+    additionalEnvelopPlugins,
+    get documents() {
+      return [
+      
+    ];
+    },
   };
 }
-export type Sdk = ReturnType<typeof getSdk>;
+
+let meshInstance$: Promise<MeshInstance<MeshContext>>;
+
+export function getBuiltGraphClient(): Promise<MeshInstance<MeshContext>> {
+  if (meshInstance$ == null) {
+    meshInstance$ = getMeshOptions().then(meshOptions => getMesh<MeshContext>(meshOptions)).then(mesh => {
+      const id$ = mesh.pubsub.subscribe('destroy', () => {
+        meshInstance$ = undefined;
+        id$.then(id => mesh.pubsub.unsubscribe(id)).catch(err => console.error(err));
+      });
+      return mesh;
+    });
+  }
+  return meshInstance$;
+}
+
+export const execute: ExecuteMeshFn = (...args) => getBuiltGraphClient().then(({ execute }) => execute(...args));
+
+export const subscribe: SubscribeMeshFn = (...args) => getBuiltGraphClient().then(({ subscribe }) => subscribe(...args));
