@@ -103,7 +103,9 @@ const Home: NextPage = () => {
     <div>
       <Head>
         <title>Lil Noun Traits</title>
-        <meta name="description" content="Check noun parts" />
+        <meta name="description" content="See your lilnoun's traits" />
+        <meta name="twitter:image" content="https://pbs.twimg.com/media/FTZCbr1WUAIMW8J?format=png&name=large" />
+        <meta property="og:image" content="https://pbs.twimg.com/media/FTZCbr1WUAIMW8J?format=png&name=large" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
